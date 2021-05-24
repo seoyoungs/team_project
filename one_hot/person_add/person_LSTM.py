@@ -124,13 +124,13 @@ print(x_val.shape, y_val.shape)     #(245943, 46, 1) (245943,)
 
 leaky_relu = tf.nn.leaky_relu
 acti_list = [leaky_relu, mish, 'swish', 'elu', 'relu', 'selu'] # ,'tanh'
-opti_list = [Nadam, Adam, Adadelta, Adamax, Adagrad] #RMSprop, 
+opti_list = [Adamax, Adagrad] #RMSprop, Nadam, Adam, Adadelta,
 batch = 1600
 lrr = 0.00001
-epo = 40
+epo = 50
 for op_idx,opti in enumerate(opti_list):
     for ac_idx,acti in enumerate(acti_list):
-        modelpath = f'../data/h5/person_Nadam_LSTM_{op_idx}_{ac_idx}.hdf5'
+        modelpath = f'../data/h5/person_Adamax_LSTM_{op_idx}_{ac_idx}.hdf5'
         model = build_model(acti, opti, lrr)
         # model = load_model(modelpath, custom_objects={'leaky_relu':tf.nn.leaky_relu, 'mish':mish})
 
@@ -144,7 +144,7 @@ for op_idx,opti in enumerate(opti_list):
         # 경로 변경 필요!!!!
         df = pd.DataFrame(y_pred)
         df[f'{op_idx}_{ac_idx}'] = y_predict
-        df.to_csv(f'../data/csv/person_data_LSTM_{op_idx}_{ac_idx}.csv',index=False)
+        df.to_csv(f'../data/csv/person_Adamax_LSTM_{op_idx}_{ac_idx}.csv',index=False)
 
         fold_score_list.append(score)
         print('=============parameter=================')
@@ -169,6 +169,23 @@ print(fold_score_list)
 
 Function call stack:
 train_function -> train_function -> train_function
+
+
+r2           rmse          mae            mse:
+[[[-4.20056606e-03  3.88957627e+00  1.36736313e+00  1.51288036e+01]
+  [-4.86647522e-03  3.89086569e+00  1.31542584e+00  1.51388358e+01]
+  [-6.10361787e-03  3.89326008e+00  1.36372666e+00  1.51574740e+01]
+  [-4.20668526e-03  3.88958812e+00  1.32288065e+00  1.51288958e+01]
+  [-3.83707603e-02  3.95519852e+00  1.53328461e+00  1.56435953e+01]
+  [-3.83576475e-03  3.88886971e+00  1.36841832e+00  1.51233077e+01]]
+
+ [[-9.83450627e-02  4.06781752e+00  1.07738729e+00  1.65471394e+01]
+  [-3.43228100e-02  3.94748158e+00  9.37371904e-01  1.55826108e+01]
+  [-2.69268884e-02  3.93334304e+00  7.48849324e-01  1.54711874e+01]
+  [-5.22945310e-02  3.98162833e+00  1.03750098e+00  1.58533642e+01]
+  [-4.47857394e-02  3.96739717e+00  1.00996451e+00  1.57402403e+01]
+  [-3.57473002e-01  4.52228222e+00  1.90382866e+00  2.04510365e+01]]]
+
 '''
 
 
