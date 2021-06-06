@@ -41,15 +41,16 @@ train_value = df[ '2020-09-01' > df['date'] ]
 x_train1 = train_value.iloc[:,1:].astype('float64')
 y_train1 = train_value['value'].astype('float64').to_numpy()
 
-x_train2 = train_value['temperature'].astype('float64').to_numpy()
+x_train2 = train_value['rain'].astype('float64')
 
 from pygam import LinearGAM, s, f
 from pygam.datasets import wage
 x_train2, y_train1 = wage()
-gam = LinearGAM(s(0) + s(1) + f(2)).fit(x_train2, y_train1)
+gam = LinearGAM(s(0) + s(1) + f(2)).fit(x_train2, y_train1) # s(0) + s(1) + f(2)
 gam.summary()
 
 import matplotlib.pyplot as plt
+
 for i, term in enumerate(gam.terms):
     if term.isintercept:
         continue
@@ -62,4 +63,8 @@ for i, term in enumerate(gam.terms):
     plt.plot(XX[:, term.feature], confi, c='r', ls='--')
     plt.title(repr(term))
     plt.show()
+
+
+
+
 
