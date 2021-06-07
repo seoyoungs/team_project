@@ -27,7 +27,7 @@ os.makedirs("images", exist_ok=True)
 # args라는 이름으로 파싱을 성공했다면 args.parameter 형태로 주어진 인자 값을 받아 사용할 수 있다.
 # --------------------------------------
 parser = argparse.ArgumentParser()
-parser.add_argument("--n_epochs", type=int, default=5, help="number of epochs of training")
+parser.add_argument("--n_epochs", type=int, default=100, help="number of epochs of training")
 parser.add_argument("--batch_size", type=int, default=64, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
@@ -106,7 +106,8 @@ class Discriminator(nn.Module):
             return block
 
         self.conv_blocks = nn.Sequential(
-            # 총 5개의 layer(in_channel*2 -> 16 -> 32 -> 64 -> 128-> opt.num_classes + 1)를 쌓았습니다.
+            # 총 5개*2의 layer(in_channel*2 -> 16 -> 32 -> 64 -> 128-> 1)
+                            # (in_channel*2 -> 16 -> 32 -> 64 -> 128-> 11)
             *discriminator_block(opt.channels, 16, bn=False),
             *discriminator_block(16, 32),
             *discriminator_block(32, 64),
@@ -118,7 +119,8 @@ class Discriminator(nn.Module):
 
         # Output layers (output은 softmax로 뽑는다.)
         self.adv_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, 1), nn.Sigmoid())
-        self.aux_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, opt.num_classes + 1), nn.Softmax())
+        self.aux_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, opt.num_classes + 1), 
+                         nn.Softmax())
 
     #  init에 layer를 모두 nn.Sequential로 쌓고 forward 부분을 간소화합니다.
     def forward(self, img):
@@ -207,7 +209,8 @@ for epoch in range(opt.n_epochs):
         gen_imgs = generator(z)
 
         # Loss measures generator's ability to fool the discriminator
-        # 생성된 이미지를 Discriminator에 넣어 참/거짓을 분별하고, 이게 얼만나 참인지를 loss로 사용합니다.
+        # 생성된 이미지를 Discriminator에 넣어 참/거짓을 분별하고, 
+        # 이게 얼만나 참인지를 loss로 사용합니다.
         validity, _ = discriminator(gen_imgs)
         g_loss = adversarial_loss(validity, valid)
 
